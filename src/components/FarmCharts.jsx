@@ -1,6 +1,13 @@
 import { formatCurrency } from "../utils/formatters.js";
+import { CollapseButton } from "./CollapseButton.jsx";
 
-export function FarmCharts({ fields, inputCosts, getFieldGross }) {
+export function FarmCharts({
+  fields,
+  inputCosts,
+  getFieldGross,
+  isCollapsed,
+  onToggleCollapse,
+}) {
   const grossByField = fields.map((field) => ({
     id: field.id,
     label: field.name,
@@ -19,10 +26,17 @@ export function FarmCharts({ fields, inputCosts, getFieldGross }) {
           <p className="section-kicker">Visuals</p>
           <h2>Profitability Snapshot</h2>
         </div>
-        <span className="badge">Live from edits</span>
+        <div className="panel-actions">
+          <span className="badge">Live from edits</span>
+          <CollapseButton
+            isCollapsed={isCollapsed}
+            label="charts"
+            onToggle={onToggleCollapse}
+          />
+        </div>
       </div>
 
-      <div className="chart-grid">
+      {!isCollapsed && <div className="chart-grid">
         <div className="chart-card">
           <h3>Gross by Field</h3>
           <div className="bar-list">
@@ -64,7 +78,7 @@ export function FarmCharts({ fields, inputCosts, getFieldGross }) {
             ))}
           </div>
         </div>
-      </div>
+      </div>}
     </section>
   );
 }
