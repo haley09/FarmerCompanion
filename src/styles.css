@@ -236,6 +236,35 @@ h3 {
   color: var(--green-dark);
 }
 
+.primary-button,
+.danger-button {
+  border: 0;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-weight: 800;
+}
+
+.primary-button {
+  align-self: end;
+  background: var(--green);
+  color: #fff;
+}
+
+.primary-button:hover {
+  background: var(--green-dark);
+}
+
+.danger-button {
+  width: 100%;
+  background: #fff4ef;
+  color: var(--warning);
+  border: 1px solid rgba(179, 93, 44, 0.24);
+}
+
+.danger-button:hover {
+  background: #ffe9df;
+}
+
 .badge,
 .status-badge,
 .service-status {
@@ -257,6 +286,17 @@ h3 {
   display: grid;
   grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 14px;
+}
+
+.add-field-form {
+  display: grid;
+  grid-template-columns: repeat(7, minmax(0, 1fr));
+  align-items: end;
+  gap: 12px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #f8fbf4;
+  padding: 14px;
 }
 
 .field-card,
@@ -305,7 +345,6 @@ h3 {
 }
 
 .data-list div,
-.cost-row,
 .price-row,
 .fuel-row,
 .weather-detail {
@@ -351,6 +390,24 @@ h3 {
   padding-bottom: 10px;
 }
 
+.cost-row {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
+  align-items: end;
+  gap: 12px;
+}
+
+.cost-row label {
+  grid-template-columns: minmax(110px, 0.7fr) minmax(90px, 1fr);
+  align-items: center;
+  gap: 10px;
+}
+
+.cost-row strong {
+  color: var(--soil);
+  white-space: nowrap;
+}
+
 .cost-total {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -374,6 +431,75 @@ h3 {
 .cost-total strong {
   color: var(--soil);
   font-size: 1.35rem;
+}
+
+.chart-panel {
+  gap: 20px;
+}
+
+.chart-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.chart-card {
+  display: grid;
+  gap: 16px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  padding: 16px;
+}
+
+.bar-list {
+  display: grid;
+  gap: 14px;
+}
+
+.bar-row {
+  display: grid;
+  gap: 7px;
+}
+
+.bar-label {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+}
+
+.bar-label span {
+  color: var(--muted);
+  font-weight: 700;
+}
+
+.bar-label strong {
+  color: var(--soil);
+  white-space: nowrap;
+}
+
+.bar-track {
+  height: 14px;
+  border-radius: 999px;
+  background: #eee4d3;
+  overflow: hidden;
+}
+
+.bar-fill {
+  display: block;
+  height: 100%;
+  min-width: 4px;
+  border-radius: inherit;
+  transition: width 180ms ease;
+}
+
+.gross-fill {
+  background: var(--green);
+}
+
+.cost-fill {
+  background: var(--gold);
 }
 
 .price-row div {
@@ -430,15 +556,10 @@ h3 {
 
 .equipment-row {
   display: grid;
-  grid-template-columns: minmax(160px, 1fr) 110px 140px 120px;
-  align-items: center;
+  grid-template-columns: repeat(2, minmax(130px, 1fr)) repeat(3, minmax(105px, 0.7fr)) auto;
+  align-items: end;
   gap: 14px;
   padding: 14px;
-}
-
-.equipment-row div:not(:first-child) {
-  display: grid;
-  gap: 3px;
 }
 
 .equipment-row span {
@@ -452,6 +573,7 @@ h3 {
 
 .service-status {
   justify-self: end;
+  align-self: end;
 }
 
 .service-good,
@@ -463,6 +585,11 @@ h3 {
 .service-warning {
   background: #fff0c4;
   color: #8a5200;
+}
+
+.service-down {
+  background: #fff4ef;
+  color: var(--warning);
 }
 
 .future-panel {
@@ -485,7 +612,9 @@ h3 {
   .summary-grid,
   .content-grid,
   .content-grid-wide,
-  .field-grid {
+  .field-grid,
+  .add-field-form,
+  .chart-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -520,7 +649,11 @@ h3 {
   .content-grid,
   .content-grid-wide,
   .field-grid,
+  .add-field-form,
   .field-edit-grid,
+  .chart-grid,
+  .cost-row,
+  .cost-row label,
   .cost-total,
   .roadmap-list,
   .equipment-row {

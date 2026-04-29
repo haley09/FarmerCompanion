@@ -5,6 +5,8 @@ export function InputCostSummary({
   inputCostPerAcre,
   totalInputCosts,
   totalAcres,
+  onInputCostChange,
+  onResetInputCosts,
 }) {
   return (
     <section className="panel">
@@ -13,12 +15,28 @@ export function InputCostSummary({
           <p className="section-kicker">Inputs</p>
           <h2>Input Cost Summary</h2>
         </div>
+        <div className="panel-actions">
+          <span className="badge">Saved in browser</span>
+          <button className="ghost-button" type="button" onClick={onResetInputCosts}>
+            Reset costs
+          </button>
+        </div>
       </div>
 
       <div className="cost-list">
         {inputCosts.map((input) => (
           <div className="cost-row" key={input.name}>
-            <span>{input.name}</span>
+            <label>
+              {input.name}
+              <input
+                type="number"
+                min="0"
+                value={input.costPerAcre}
+                onChange={(event) =>
+                  onInputCostChange(input.name, event.target.value)
+                }
+              />
+            </label>
             <strong>{formatCurrency(input.costPerAcre)}/acre</strong>
           </div>
         ))}

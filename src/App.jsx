@@ -1,10 +1,10 @@
 import { useEffect, useState } from "react";
 import {
   commodityPrices,
-  equipment,
+  equipment as initialEquipment,
   fields as initialFields,
   fuelCosts,
-  inputCosts,
+  inputCosts as initialInputCosts,
   weather,
 } from "./data/mockData.js";
 import {
@@ -18,18 +18,31 @@ import {
 import { formatCurrency } from "./utils/formatters.js";
 import { CommodityPrices } from "./components/CommodityPrices.jsx";
 import { EquipmentPanel } from "./components/EquipmentPanel.jsx";
+import { FarmCharts } from "./components/FarmCharts.jsx";
 import { FieldProfitability } from "./components/FieldProfitability.jsx";
 import { InputCostSummary } from "./components/InputCostSummary.jsx";
 import { SummaryCard } from "./components/SummaryCard.jsx";
 import { WeatherWatch } from "./components/WeatherWatch.jsx";
 import {
   clearSavedFields,
+  clearSavedEquipment,
+  clearSavedInputCosts,
+  loadSavedEquipment,
   loadSavedFields,
+  loadSavedInputCosts,
+  saveEquipment,
   saveFields,
+  saveInputCosts,
 } from "./utils/storage.js";
 
 export default function App() {
   const [fields, setFields] = useState(() => loadSavedFields(initialFields));
+  const [inputCosts, setInputCosts] = useState(() =>
+    loadSavedInputCosts(initialInputCosts)
+  );
+  const [equipment, setEquipment] = useState(() =>
+    loadSavedEquipment(initialEquipment)
+  );
   const totalAcres = getTotalAcres(fields);
   const totalGross = getTotalGross(fields);
   const inputCostPerAcre = getInputCostPerAcre(inputCosts);
@@ -39,6 +52,14 @@ export default function App() {
   useEffect(() => {
     saveFields(fields);
   }, [fields]);
+
+  useEffect(() => {
+    saveInputCosts(inputCosts);
+  }, [inputCosts]);
+
+  useEffect(() => {
+    saveEquipment(equipment);
+  }, [equipment]);
 
   function updateField(fieldId, key, value) {
     setFields((currentFields) =>
@@ -55,9 +76,65 @@ export default function App() {
     );
   }
 
+  function addField(field) {
+    setFields((currentFields) => [
+      ...currentFields,
+      {
+        id: Date.now(),
+        name: field.name,
+        crop: field.crop,
+        acres: Number(field.acres) || 0,
+        yieldPerAcre: Number(field.yieldPerAcre) || 0,
+        pricePerBushel: Number(field.pricePerBushel) || 0,
+        status: field.status,
+      },
+    ]);
+  }
+
+  function deleteField(fieldId) {
+    setFields((currentFields) =>
+      currentFields.filter((field) => field.id !== fieldId)
+    );
+  }
+
   function resetFields() {
     clearSavedFields();
     setFields(initialFields);
+  }
+
+  function updateInputCost(inputName, value) {
+    setInputCosts((currentInputCosts) =>
+      currentInputCosts.map((input) =>
+        input.name === inputName
+          ? { ...input, costPerAcre: Number(value) || 0 }
+          : input
+      )
+    );
+  }
+
+  function resetInputCosts() {
+    clearSavedInputCosts();
+    setInputCosts(initialInputCosts);
+  }
+
+  function updateEquipment(equipmentId, key, value) {
+    setEquipment((currentEquipment) =>
+      currentEquipment.map((item) =>
+        item.id === equipmentId
+          ? {
+              ...item,
+              [key]: ["hours", "nextService"].includes(key)
+                ? Number(value) || 0
+                : value,
+            }
+          : item
+      )
+    );
+  }
+
+  function resetEquipment() {
+    clearSavedEquipment();
+    setEquipment(initialEquipment);
   }
 
   return (
@@ -94,6 +171,8 @@ export default function App() {
           <FieldProfitability
             fields={fields}
             getFieldGross={getFieldGross}
+            onAddField={addField}
+            onDeleteField={deleteField}
             onFieldChange={updateField}
             onResetFields={resetFields}
           />
@@ -106,12 +185,24 @@ export default function App() {
             inputCostPerAcre={inputCostPerAcre}
             totalInputCosts={totalInputCosts}
             totalAcres={totalAcres}
+            onInputCostChange={updateInputCost}
+            onResetInputCosts={resetInputCosts}
           />
           <CommodityPrices commodityPrices={commodityPrices} fuelCosts={fuelCosts} />
         </section>
 
+        <FarmCharts
+          fields={fields}
+          inputCosts={inputCosts}
+          getFieldGross={getFieldGross}
+        />
+
         <section className="content-grid">
-          <EquipmentPanel equipment={equipment} />
+          <EquipmentPanel
+            equipment={equipment}
+            onEquipmentChange={updateEquipment}
+            onResetEquipment={resetEquipment}
+          />
           <section className="panel future-panel">
             <div className="panel-header">
               <div>
