@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import api from "../services/api";
 
 const initialFormData = {
   name: "",
@@ -9,6 +11,7 @@ const initialFormData = {
 };
 
 export default function RegisterPage() {
+  const navigate = useNavigate();
   const [formData, setFormData] = useState(initialFormData);
   const [message, setMessage] = useState("");
   const [messageTone, setMessageTone] = useState("neutral");
@@ -35,27 +38,18 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      const response = await fetch("/auth/register/", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (!response.ok) {
-        throw new Error("Registration failed.");
-      }
+      await api.post("/auth/register/", formData);
 
       setFormData(initialFormData);
       setMessage(
         "Account created. You can now log in and start setting up your farm dashboard."
       );
       setMessageTone("success");
+      window.setTimeout(() => navigate("/login"), 900);
     } catch (error) {
       setMessage("Registration failed. Please check your details and try again.");
       setMessageTone("error");
-      console.error(error.message);
+      console.error(error.response?.data || error.message);
     } finally {
       setIsSubmitting(false);
     }
@@ -169,7 +163,7 @@ export default function RegisterPage() {
           )}
 
           <p className="auth-switch">
-            Already have an account? <a href="/login">Log in</a>
+            Already have an account? <Link to="/login">Log in</Link>
           </p>
         </form>
       </section>

@@ -2,37 +2,49 @@ import { Link } from "react-router-dom";
 
 export default function LandingPage() {
   return (
-    <section className="landing-page">
-      <div className="landing-card">
-        <p className="eyebrow">Farmer Companion</p>
-        <h1>One stop shop for all your farming needs</h1>
-        <p className="landing-text">Farmer Companion is a comprehensive platform designed to support farmers in managing their agricultural activities.
-             It offers a range of features including crop management, weather forecasting, market price tracking, and access to agricultural resources. 
-             Whether you're a small-scale farmer or a large agricultural enterprise, Farmer Companion provides the tools and information you need to 
-             optimize your farming operations and increase productivity.
-        </p>
+    <main className="landing-page">
+      <section className="landing-hero" aria-labelledby="landing-heading">
+        <div className="landing-copy">
+          <p className="eyebrow">Farmer Companion</p>
+          <h1 id="landing-heading">Run the season from one farm desk</h1>
+          <p>
+            Track field profitability, input costs, weather, market targets,
+            equipment service, tasks, and printable planning reports in one
+            practical dashboard.
+          </p>
 
-        <div className="landing-actions">
-          <Link to="/login" className="primary-button">
-            Login
-          </Link>
-          <Link to="/register" className="secondary-button">
-            Register
-          </Link>
-        </div>
-
-        <div className="landing-grid">
-          <div className="landing-feature">
-            <h2>For Farmers</h2>
-            <p>Manage your crops, access weather forecasts, and track market prices.</p>
-          </div>
-          <div className="landing-feature">
-            <h2>For Agricultural Experts</h2>
-            <p>Share knowledge, provide guidance, and connect with the farming community.</p>
+          <div className="landing-actions">
+            <Link to="/dashboard" className="primary-button">
+              Open preview dashboard
+            </Link>
+            <Link to="/register" className="ghost-button landing-auth-link">
+              Create account
+            </Link>
+            <Link to="/login" className="landing-login-link">
+              Log in
+            </Link>
           </div>
         </div>
 
-      </div>
-    </section>
+        <div className="landing-panel" aria-label="Dashboard highlights">
+          <div>
+            <span>Total Acres</span>
+            <strong>182</strong>
+          </div>
+          <div>
+            <span>Projected Net</span>
+            <strong>$85.4k</strong>
+          </div>
+          <div>
+            <span>Priority Alerts</span>
+            <strong>4</strong>
+          </div>
+          <div>
+            <span>Planning Year</span>
+            <strong>2026</strong>
+          </div>
+        </div>
+      </section>
+    </main>
   );
 }
