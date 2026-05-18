@@ -14,7 +14,8 @@ createRoot(document.getElementById("root")).render(
         <Route path="/" element={<LandingPage />} />
         <Route path="/login" element={<LoginPage />} />
         <Route path="/register" element={<RegisterPage />} />
-        <Route path="/dashboard" element={<App />} />
+        <Route path="/dashboard" element={<App viewerRole="owner" />} />
+        <Route path="/employee-dashboard" element={<App viewerRole="employee" />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </BrowserRouter>

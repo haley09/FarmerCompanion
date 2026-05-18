@@ -10,6 +10,7 @@ const FARM_TASKS_STORAGE_KEY = "farmcomp.tasks";
 const FIELD_ACTIVITIES_STORAGE_KEY = "farmcomp.fieldActivities";
 const EQUIPMENT_SERVICE_LOGS_STORAGE_KEY = "farmcomp.equipmentServiceLogs";
 const COLLAPSED_SECTIONS_STORAGE_KEY = "farmcomp.collapsedSections";
+const TEAM_ACCESS_STORAGE_KEY = "farmcomp.teamAccess";
 
 export function loadSavedFields(defaultFields) {
   return loadJson(FIELD_STORAGE_KEY, defaultFields);
@@ -121,6 +122,14 @@ export function loadSavedCollapsedSections(defaultSections = {}) {
 
 export function saveCollapsedSections(sections) {
   saveJson(COLLAPSED_SECTIONS_STORAGE_KEY, sections);
+}
+
+export function loadSavedTeamAccess(defaultTeamAccess) {
+  return loadJson(TEAM_ACCESS_STORAGE_KEY, defaultTeamAccess);
+}
+
+export function saveTeamAccess(teamAccess) {
+  saveJson(TEAM_ACCESS_STORAGE_KEY, teamAccess);
 }
 
 function loadJson(key, fallbackValue) {

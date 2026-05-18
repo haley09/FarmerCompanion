@@ -5,6 +5,7 @@ import api from "../services/api";
 const initialFormData = {
   email: "",
   password: "",
+  role: "owner",
 };
 
 export default function LoginPage() {
@@ -29,6 +30,7 @@ export default function LoginPage() {
 
     try {
       const response = await api.post("/auth/login/", formData);
+      const role = response?.role || formData.role;
 
       if (response?.access) {
         localStorage.setItem("access", response.access);
@@ -39,7 +41,8 @@ export default function LoginPage() {
       }
 
       localStorage.setItem("userEmail", formData.email);
-      navigate("/dashboard");
+      localStorage.setItem("userRole", role);
+      navigate(role === "employee" ? "/employee-dashboard" : "/dashboard");
     } catch (error) {
       setMessage("Login failed. Please check your email and password.");
       setMessageTone("error");
@@ -97,6 +100,19 @@ export default function LoginPage() {
               autoComplete="current-password"
               required
             />
+          </label>
+
+          <label>
+            Account type
+            <select
+              name="role"
+              value={formData.role}
+              onChange={handleChange}
+              required
+            >
+              <option value="owner">Owner</option>
+              <option value="employee">Employee</option>
+            </select>
           </label>
 
           <button

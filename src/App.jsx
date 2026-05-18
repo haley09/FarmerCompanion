@@ -43,6 +43,7 @@ import { PriorityAlerts } from "./components/PriorityAlerts.jsx";
 import { ReportsPanel } from "./components/ReportsPanel.jsx";
 import { SectionNav } from "./components/SectionNav.jsx";
 import { SummaryCard } from "./components/SummaryCard.jsx";
+import { TeamAccessPanel } from "./components/TeamAccessPanel.jsx";
 import { WeatherWatch } from "./components/WeatherWatch.jsx";
 import { CollapseButton } from "./components/CollapseButton.jsx";
 import {
@@ -61,6 +62,7 @@ import {
   loadSavedCollapsedSections,
   loadSavedFields,
   loadSavedInputCosts,
+  loadSavedTeamAccess,
   saveEquipment,
   saveCommodityApiKey,
   saveCropBasis,
@@ -73,9 +75,32 @@ import {
   saveCollapsedSections,
   saveFields,
   saveInputCosts,
+  saveTeamAccess,
 } from "./utils/storage.js";
 
-export default function App() {
+const defaultEmployeePermissions = {
+  summary: true,
+  fields: true,
+  markets: false,
+  records: true,
+  tasks: true,
+  equipment: false,
+  reports: false,
+};
+
+const initialTeamAccess = {
+  employees: [
+    {
+      id: 1,
+      name: "Field Crew",
+      email: "crew@farm.local",
+      permissions: defaultEmployeePermissions,
+    },
+  ],
+};
+
+export default function App({ viewerRole = "owner" }) {
+  const isOwner = viewerRole !== "employee";
   const [fields, setFields] = useState(() => loadSavedFields(initialFields));
   const [inputCosts, setInputCosts] = useState(() =>
     loadSavedInputCosts(initialInputCosts)
@@ -110,6 +135,13 @@ export default function App() {
   const [collapsedSections, setCollapsedSections] = useState(() =>
     loadSavedCollapsedSections({})
   );
+  const [teamAccess, setTeamAccess] = useState(() =>
+    loadSavedTeamAccess(initialTeamAccess)
+  );
+  const employeePermissions =
+    teamAccess.employees[0]?.permissions || defaultEmployeePermissions;
+  const canViewSection = (section) =>
+    isOwner || Boolean(employeePermissions[section]);
   const totalAcres = getTotalAcres(fields);
   const totalGross = getTotalGross(fields);
   const inputCostPerAcre = getInputCostPerAcre(inputCosts);
@@ -174,6 +206,10 @@ export default function App() {
   useEffect(() => {
     saveCollapsedSections(collapsedSections);
   }, [collapsedSections]);
+
+  useEffect(() => {
+    saveTeamAccess(teamAccess);
+  }, [teamAccess]);
 
   function updateField(fieldId, key, value) {
     setFields((currentFields) =>
@@ -385,6 +421,31 @@ export default function App() {
     return Boolean(collapsedSections[sectionName]);
   }
 
+  function updateEmployeePermission(employeeId, permission, value) {
+    setTeamAccess((currentTeamAccess) => ({
+      ...currentTeamAccess,
+      employees: currentTeamAccess.employees.map((employee) =>
+        employee.id === employeeId
+          ? {
+              ...employee,
+              permissions: {
+                ...employee.permissions,
+                [permission]: value,
+              },
+            }
+          : employee
+      ),
+    }));
+  }
+
+  const employeeActivity = getEmployeeActivity({
+    equipmentServiceLogs,
+    farmTasks,
+    fieldActivities,
+    fields,
+    equipment,
+  });
+
   return (
     <main className="app-shell">
       <div className="dashboard">
@@ -393,20 +454,20 @@ export default function App() {
             <p className="eyebrow">FarmerCompanion</p>
             <h1>{farmProfile.farmName || "FarmComp"}</h1>
             <p className="hero-copy">
-              A practical crop farm dashboard for tracking fields, gross crop
-              estimates, market prices, input costs, weather, fuel, equipment,
-              and projected profitability.
+              {isOwner
+                ? "A practical crop farm dashboard for tracking fields, gross crop estimates, market prices, input costs, weather, fuel, equipment, and projected profitability."
+                : "Your workspace shows the farm information and tools the owner has opened for your role."}
             </p>
           </div>
           <div className="season-pill">
-            <span>{farmProfile.operatorName || "FarmComp dashboard"}</span>
+            <span>{isOwner ? farmProfile.operatorName || "Owner dashboard" : "Employee dashboard"}</span>
             <strong>{farmProfile.planningYear} planning season</strong>
           </div>
         </header>
 
-        <SectionNav />
+        <SectionNav canViewSection={canViewSection} isOwner={isOwner} />
 
-        <section className="summary-grid" id="summary" aria-label="Farm summary">
+        {canViewSection("summary") && <section className="summary-grid" id="summary" aria-label="Farm summary">
           <SummaryCard label="Total Acres" value={totalAcres.toLocaleString()} />
           <SummaryCard label="Estimated Crop Gross" value={formatCurrency(totalGross)} />
           <SummaryCard label="Estimated Input Costs" value={formatCurrency(totalInputCosts)} />
@@ -420,16 +481,25 @@ export default function App() {
             value={formatCurrency(averageNetPerAcre)}
             tone={averageNetPerAcre >= 0 ? "positive" : "warning"}
           />
-        </section>
+        </section>}
 
-        <PriorityAlerts alerts={priorityAlerts} />
+        {canViewSection("summary") && <PriorityAlerts alerts={priorityAlerts} />}
 
-        <FarmProfile
+        {isOwner && <TeamAccessPanel
+          activities={employeeActivity}
+          employees={teamAccess.employees}
+          equipmentServiceLogs={equipmentServiceLogs}
+          farmTasks={farmTasks}
+          fieldActivities={fieldActivities}
+          onPermissionChange={updateEmployeePermission}
+        />}
+
+        {isOwner && <FarmProfile
           profile={farmProfile}
           onProfileChange={setFarmProfile}
-        />
+        />}
 
-        <section className="content-grid content-grid-wide" id="fields">
+        {canViewSection("fields") && <section className="content-grid content-grid-wide" id="fields">
           <FieldProfitability
             fields={fields}
             inputCosts={inputCosts}
@@ -448,9 +518,9 @@ export default function App() {
             farmLocation={farmLocation}
             onFarmLocationChange={setFarmLocation}
           />
-        </section>
+        </section>}
 
-        <section className="content-grid" id="markets">
+        {canViewSection("markets") && <section className="content-grid" id="markets">
           <InputCostSummary
             inputCosts={inputCosts}
             inputCostPerAcre={inputCostPerAcre}
@@ -470,17 +540,17 @@ export default function App() {
             onCropTargetChange={updateCropTarget}
             onCommodityApiKeyChange={setCommodityApiKey}
           />
-        </section>
+        </section>}
 
-        <FarmCharts
+        {canViewSection("summary") && <FarmCharts
           fields={fields}
           inputCosts={inputCosts}
           getFieldGross={getFieldGross}
           isCollapsed={isSectionCollapsed("charts")}
           onToggleCollapse={() => toggleSection("charts")}
-        />
+        />}
 
-        <FieldActivityLog
+        {canViewSection("records") && <FieldActivityLog
           id="records"
           activities={fieldActivities}
           fields={fields}
@@ -488,9 +558,9 @@ export default function App() {
           onAddActivity={addFieldActivity}
           onDeleteActivity={deleteFieldActivity}
           onToggleCollapse={() => toggleSection("records")}
-        />
+        />}
 
-        <FarmTasks
+        {canViewSection("tasks") && <FarmTasks
           id="tasks"
           equipment={equipment}
           fields={fields}
@@ -500,9 +570,9 @@ export default function App() {
           onDeleteTask={deleteFarmTask}
           onTaskChange={updateFarmTask}
           onToggleCollapse={() => toggleSection("tasks")}
-        />
+        />}
 
-        <EquipmentPanel
+        {canViewSection("equipment") && <EquipmentPanel
           id="equipment"
           equipment={equipment}
           isCollapsed={isSectionCollapsed("equipment")}
@@ -511,18 +581,18 @@ export default function App() {
           onEquipmentChange={updateEquipment}
           onResetEquipment={resetEquipment}
           onToggleCollapse={() => toggleSection("equipment")}
-        />
+        />}
 
-        <EquipmentServiceLog
+        {canViewSection("equipment") && <EquipmentServiceLog
           equipment={equipment}
           isCollapsed={isSectionCollapsed("serviceLogs")}
           logs={equipmentServiceLogs}
           onAddServiceLog={addEquipmentServiceLog}
           onDeleteServiceLog={deleteEquipmentServiceLog}
           onToggleCollapse={() => toggleSection("serviceLogs")}
-        />
+        />}
 
-        <section className="utility-grid" id="reports">
+        {canViewSection("reports") && <section className="utility-grid" id="reports">
           <DataTransfer
             farmData={{
               fields,
@@ -545,9 +615,9 @@ export default function App() {
             fieldActivities={fieldActivities}
             fields={fields}
           />
-        </section>
+        </section>}
 
-        <PlanningReport
+        {canViewSection("reports") && <PlanningReport
           alerts={priorityAlerts}
           averageNetPerAcre={averageNetPerAcre}
           cropBasis={cropBasis}
@@ -565,9 +635,56 @@ export default function App() {
           totalAcres={totalAcres}
           totalGross={totalGross}
           totalInputCosts={totalInputCosts}
-        />
+        />}
       </div>
     </main>
+  );
+}
+
+function getEmployeeActivity({
+  equipmentServiceLogs,
+  farmTasks,
+  fieldActivities,
+  fields,
+  equipment,
+}) {
+  const taskActivity = farmTasks.map((task) => ({
+    id: `task-${task.id}`,
+    type: "Task",
+    title: task.title,
+    detail: `${task.status} - ${task.priority} priority`,
+    sortDate: task.dueDate || "",
+  }));
+  const fieldActivity = fieldActivities.map((activity) => ({
+    id: `field-${activity.id}`,
+    type: "Field record",
+    title: getFieldName(activity.fieldId, fields),
+    detail: `${activity.type}: ${activity.note}`,
+    sortDate: activity.date || "",
+  }));
+  const serviceActivity = equipmentServiceLogs.map((log) => ({
+    id: `service-${log.id}`,
+    type: "Service log",
+    title: getEquipmentName(log.equipmentId, equipment),
+    detail: `${log.type}: ${log.note}`,
+    sortDate: log.date || "",
+  }));
+
+  return [...taskActivity, ...fieldActivity, ...serviceActivity]
+    .sort((activityA, activityB) =>
+      activityB.sortDate.localeCompare(activityA.sortDate)
+    )
+    .slice(0, 6);
+}
+
+function getFieldName(fieldId, fields) {
+  return fields.find((field) => field.id === Number(fieldId))?.name || "Field";
+}
+
+function getEquipmentName(equipmentId, equipment) {
+  return (
+    equipment.find((item) => item.id === Number(equipmentId))?.name ||
+    "Equipment"
   );
 }
 

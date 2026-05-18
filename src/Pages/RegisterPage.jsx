@@ -45,6 +45,7 @@ export default function RegisterPage() {
         "Account created. You can now log in and start setting up your farm dashboard."
       );
       setMessageTone("success");
+      localStorage.setItem("userRole", formData.role);
       window.setTimeout(() => navigate("/login"), 900);
     } catch (error) {
       setMessage("Registration failed. Please check your details and try again.");

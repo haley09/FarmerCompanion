@@ -371,6 +371,94 @@ h3 {
   background: #fffdf8;
 }
 
+.team-panel {
+  background: #f7fbf4;
+}
+
+.team-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(320px, 0.75fr);
+  gap: 14px;
+}
+
+.team-access-list,
+.employee-activity-list {
+  display: grid;
+  gap: 10px;
+}
+
+.team-card,
+.employee-activity-panel {
+  display: grid;
+  gap: 14px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 14px;
+}
+
+.team-card p,
+.employee-activity-row p {
+  color: var(--muted);
+  line-height: 1.45;
+}
+
+.permission-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.permission-toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--panel-soft);
+  color: var(--soil);
+  padding: 9px 10px;
+}
+
+.permission-toggle input {
+  width: auto;
+}
+
+.employee-activity-row {
+  display: grid;
+  gap: 4px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 10px;
+}
+
+.employee-activity-row:last-child {
+  border-bottom: 0;
+  padding-bottom: 0;
+}
+
+.employee-activity-row span,
+.employee-activity-summary span {
+  color: var(--muted);
+  font-size: 0.78rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.employee-activity-summary {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid var(--line);
+  padding-top: 12px;
+}
+
+.employee-activity-summary span {
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  padding: 6px 10px;
+}
+
 .alerts-grid {
   display: grid;
   grid-template-columns: repeat(4, minmax(0, 1fr));
@@ -1444,10 +1532,12 @@ h3 {
   .utility-grid,
   .content-grid-wide,
   .field-grid,
+  .team-grid,
   .field-profit-grid,
   .field-break-even-grid,
   .alerts-grid,
   .profile-grid,
+  .permission-grid,
   .add-field-form,
   .add-equipment-form,
   .chart-grid,
@@ -1520,8 +1610,10 @@ h3 {
   .utility-grid,
   .content-grid-wide,
   .field-grid,
+  .team-grid,
   .alerts-grid,
   .profile-grid,
+  .permission-grid,
   .add-field-form,
   .add-equipment-form,
   .field-edit-grid,
