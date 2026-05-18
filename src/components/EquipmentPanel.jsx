@@ -44,6 +44,18 @@ export function EquipmentPanel({
     setNewEquipment(blankEquipment);
   }
 
+  function handleResetEquipment() {
+    if (window.confirm("Reset equipment to the starter list?")) {
+      onResetEquipment();
+    }
+  }
+
+  function handleDeleteEquipment(item) {
+    if (window.confirm(`Delete ${item.name}? This cannot be undone.`)) {
+      onDeleteEquipment(item.id);
+    }
+  }
+
   return (
     <section className="panel" id={id}>
       <div className="panel-header">
@@ -58,7 +70,7 @@ export function EquipmentPanel({
             label="equipment"
             onToggle={onToggleCollapse}
           />
-          <button className="ghost-button" type="button" onClick={onResetEquipment}>
+          <button className="ghost-button" type="button" onClick={handleResetEquipment}>
             Reset equipment
           </button>
         </div>
@@ -127,6 +139,9 @@ export function EquipmentPanel({
       </form>
 
       <div className="equipment-list">
+        {equipment.length === 0 && (
+          <p className="empty-state">No equipment yet. Add a machine above to start tracking hours and service windows.</p>
+        )}
         {equipment.map((item) => {
           const serviceAlert = getServiceAlert(item);
 
@@ -196,7 +211,7 @@ export function EquipmentPanel({
               <button
                 className="danger-button"
                 type="button"
-                onClick={() => onDeleteEquipment(item.id)}
+                onClick={() => handleDeleteEquipment(item)}
               >
                 Delete
               </button>

@@ -6,7 +6,10 @@ export function downloadCsv(filename, rows) {
 
   downloadLink.href = csvUrl;
   downloadLink.download = filename;
+  downloadLink.style.display = "none";
+  document.body.append(downloadLink);
   downloadLink.click();
+  downloadLink.remove();
   URL.revokeObjectURL(csvUrl);
 }
 

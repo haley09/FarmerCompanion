@@ -19,7 +19,10 @@ export function DataTransfer({ farmData, onImportFarmData }) {
 
     downloadLink.href = backupUrl;
     downloadLink.download = `farmcomp-backup-${getDateStamp()}.json`;
+    downloadLink.style.display = "none";
+    document.body.append(downloadLink);
     downloadLink.click();
+    downloadLink.remove();
     URL.revokeObjectURL(backupUrl);
     setMessage("Backup file downloaded.");
   }
@@ -34,6 +37,15 @@ export function DataTransfer({ farmData, onImportFarmData }) {
     try {
       const backup = JSON.parse(await file.text());
       const importedData = validateBackup(backup);
+
+      const shouldImport = window.confirm(
+        "Importing this backup will replace your current farm data in this browser. Continue?"
+      );
+
+      if (!shouldImport) {
+        setMessage("Backup import canceled.");
+        return;
+      }
 
       onImportFarmData(importedData);
       setMessage("Backup imported. Your dashboard has been updated.");
@@ -88,7 +100,7 @@ function validateBackup(backup) {
     !Array.isArray(data.fields) ||
     !Array.isArray(data.inputCosts) ||
     !Array.isArray(data.equipment) ||
-    !data.farmLocation
+    !isObject(data.farmLocation)
   ) {
     throw new Error("That file does not look like a FarmComp backup.");
   }
@@ -98,13 +110,21 @@ function validateBackup(backup) {
     inputCosts: data.inputCosts,
     equipment: data.equipment,
     farmLocation: data.farmLocation,
-    farmProfile: data.farmProfile,
-    cropBasis: data.cropBasis,
-    cropTargets: data.cropTargets,
-    farmTasks: data.farmTasks,
-    fieldActivities: data.fieldActivities,
-    equipmentServiceLogs: data.equipmentServiceLogs,
+    farmProfile: isObject(data.farmProfile) ? data.farmProfile : undefined,
+    cropBasis: isObject(data.cropBasis) ? data.cropBasis : undefined,
+    cropTargets: isObject(data.cropTargets) ? data.cropTargets : undefined,
+    farmTasks: Array.isArray(data.farmTasks) ? data.farmTasks : undefined,
+    fieldActivities: Array.isArray(data.fieldActivities)
+      ? data.fieldActivities
+      : undefined,
+    equipmentServiceLogs: Array.isArray(data.equipmentServiceLogs)
+      ? data.equipmentServiceLogs
+      : undefined,
   };
+}
+
+function isObject(value) {
+  return Boolean(value) && typeof value === "object" && !Array.isArray(value);
 }
 
 function getDateStamp() {

@@ -62,6 +62,12 @@ export function EquipmentServiceLog({
     setNewLog(blankServiceLog);
   }
 
+  function handleDeleteServiceLog(log) {
+    if (window.confirm("Delete this equipment service record? This cannot be undone.")) {
+      onDeleteServiceLog(log.id);
+    }
+  }
+
   return (
     <section className="panel service-log-panel">
       <div className="panel-header">
@@ -177,7 +183,11 @@ export function EquipmentServiceLog({
 
       <div className="service-log-list">
         {sortedLogs.length === 0 && (
-          <p className="empty-state">No service records match these filters.</p>
+          <p className="empty-state">
+            {logs.length
+              ? "No service records match these filters."
+              : "No service records yet. Add completed maintenance, repairs, or inspections above."}
+          </p>
         )}
         {sortedLogs.map((log) => (
           <article className="service-log-row" key={log.id}>
@@ -194,7 +204,7 @@ export function EquipmentServiceLog({
             <button
               className="danger-button"
               type="button"
-              onClick={() => onDeleteServiceLog(log.id)}
+              onClick={() => handleDeleteServiceLog(log)}
             >
               Delete
             </button>

@@ -3,6 +3,38 @@ import { CollapseButton } from "./CollapseButton.jsx";
 
 const taskPriorities = ["High", "Medium", "Low"];
 const taskStatuses = ["Planned", "In progress", "Done"];
+const taskTemplates = [
+  {
+    label: "Scout fields",
+    title: "Scout fields",
+    relatedType: "Field",
+    priority: "High",
+  },
+  {
+    label: "Spray application",
+    title: "Spray application",
+    relatedType: "Field",
+    priority: "High",
+  },
+  {
+    label: "Order inputs",
+    title: "Order inputs",
+    relatedType: "Field",
+    priority: "Medium",
+  },
+  {
+    label: "Service equipment",
+    title: "Service equipment",
+    relatedType: "Equipment",
+    priority: "Medium",
+  },
+  {
+    label: "Check cash bids",
+    title: "Check cash bids",
+    relatedType: "Field",
+    priority: "Low",
+  },
+];
 const blankTask = {
   title: "",
   relatedType: "Field",
@@ -55,6 +87,23 @@ export function FarmTasks({
     setNewTask(blankTask);
   }
 
+  function handleDeleteTask(task) {
+    if (window.confirm(`Delete "${task.title}"? This cannot be undone.`)) {
+      onDeleteTask(task.id);
+    }
+  }
+
+  function applyTaskTemplate(template) {
+    setNewTask((currentTask) => ({
+      ...currentTask,
+      title: template.title,
+      relatedType: template.relatedType,
+      relatedId: "",
+      priority: template.priority,
+      status: "Planned",
+    }));
+  }
+
   return (
     <section className="panel task-panel" id={id}>
       <div className="panel-header">
@@ -73,6 +122,19 @@ export function FarmTasks({
       </div>
 
       {!isCollapsed && <>
+      <div className="quick-template-bar" aria-label="Task templates">
+        {taskTemplates.map((template) => (
+          <button
+            className="template-chip"
+            key={template.label}
+            type="button"
+            onClick={() => applyTaskTemplate(template)}
+          >
+            {template.label}
+          </button>
+        ))}
+      </div>
+
       <form className="task-form" onSubmit={handleAddTask}>
         <label>
           Task
@@ -165,7 +227,11 @@ export function FarmTasks({
 
       <div className="task-list">
         {sortedTasks.length === 0 && (
-          <p className="empty-state">No reminders match these filters.</p>
+          <p className="empty-state">
+            {tasks.length
+              ? "No reminders match these filters."
+              : "No reminders yet. Add a task above to keep field work and service plans moving."}
+          </p>
         )}
         {sortedTasks.map((task) => {
           const dueStatus = getDueStatus(task);
@@ -216,7 +282,7 @@ export function FarmTasks({
               <button
                 className="danger-button"
                 type="button"
-                onClick={() => onDeleteTask(task.id)}
+                onClick={() => handleDeleteTask(task)}
               >
                 Delete
               </button>

@@ -8,6 +8,12 @@ export function InputCostSummary({
   onInputCostChange,
   onResetInputCosts,
 }) {
+  function handleResetInputCosts() {
+    if (window.confirm("Reset input costs to the starter values?")) {
+      onResetInputCosts();
+    }
+  }
+
   return (
     <section className="panel">
       <div className="panel-header">
@@ -17,7 +23,7 @@ export function InputCostSummary({
         </div>
         <div className="panel-actions">
           <span className="badge">Saved in browser</span>
-          <button className="ghost-button" type="button" onClick={onResetInputCosts}>
+          <button className="ghost-button" type="button" onClick={handleResetInputCosts}>
             Reset costs
           </button>
         </div>

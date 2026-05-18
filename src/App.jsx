@@ -547,28 +547,6 @@ export default function App() {
           />
         </section>
 
-        <section className="panel future-panel">
-          <div className="panel-header">
-            <div>
-              <p className="section-kicker">Roadmap</p>
-              <h2>Built for Expansion</h2>
-            </div>
-            <CollapseButton
-              isCollapsed={isSectionCollapsed("roadmap")}
-              label="roadmap"
-              onToggle={() => toggleSection("roadmap")}
-            />
-          </div>
-          {!isSectionCollapsed("roadmap") && <div className="roadmap-list">
-            <span>Collapsible dashboard sections</span>
-            <span>Mobile workflow polish</span>
-            <span>Accessibility review</span>
-            <span>Recurring task templates</span>
-            <span>Local cash bid integrations</span>
-            <span>Backend sync and accounts</span>
-          </div>}
-        </section>
-
         <PlanningReport
           alerts={priorityAlerts}
           averageNetPerAcre={averageNetPerAcre}

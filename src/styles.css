@@ -440,7 +440,7 @@ h3 {
 }
 
 .add-field-form {
-  grid-template-columns: repeat(7, minmax(0, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
 }
 
 .add-equipment-form {
@@ -573,8 +573,7 @@ h3 {
 
 .cost-list,
 .price-list,
-.equipment-list,
-.roadmap-list {
+.equipment-list {
   display: grid;
   gap: 10px;
 }
@@ -830,6 +829,31 @@ h3 {
   border-radius: 8px;
   background: #f8fbf4;
   padding: 14px;
+}
+
+.quick-template-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: #fff;
+  padding: 10px;
+}
+
+.template-chip {
+  border: 1px solid rgba(47, 109, 67, 0.24);
+  border-radius: 999px;
+  background: var(--green-soft);
+  color: var(--green-dark);
+  padding: 8px 10px;
+  font-size: 0.84rem;
+  font-weight: 800;
+}
+
+.template-chip:hover {
+  border-color: var(--green);
+  background: #f7fbf4;
 }
 
 .task-list {
@@ -1204,22 +1228,6 @@ h3 {
   display: none;
 }
 
-.future-panel {
-  background: #fbf8f1;
-}
-
-.roadmap-list {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-}
-
-.roadmap-list span {
-  border: 1px solid var(--line);
-  border-radius: 8px;
-  background: #fff;
-  color: var(--muted);
-  padding: 12px;
-}
-
 .landing-page {
   min-height: 100vh;
   display: grid;
@@ -1450,8 +1458,7 @@ h3 {
   .task-form,
   .task-row,
   .price-row-market,
-  .pricing-target-grid,
-  .roadmap-list {
+  .pricing-target-grid {
     grid-template-columns: 1fr 1fr;
   }
 
@@ -1532,7 +1539,6 @@ h3 {
   .cost-row,
   .cost-row label,
   .cost-total,
-  .roadmap-list,
   .weather-location-form,
   .equipment-row {
     grid-template-columns: 1fr;
@@ -1553,6 +1559,17 @@ h3 {
 
   .landing-panel {
     grid-template-columns: 1fr;
+  }
+
+  .quick-template-bar {
+    flex-wrap: nowrap;
+    margin: 0 -2px;
+    overflow-x: auto;
+    padding-bottom: 12px;
+  }
+
+  .template-chip {
+    flex: 0 0 auto;
   }
 }
 

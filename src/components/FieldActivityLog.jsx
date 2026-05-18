@@ -59,6 +59,12 @@ export function FieldActivityLog({
     setNewActivity(blankActivity);
   }
 
+  function handleDeleteActivity(activity) {
+    if (window.confirm("Delete this field activity record? This cannot be undone.")) {
+      onDeleteActivity(activity.id);
+    }
+  }
+
   return (
     <section className="panel activity-panel" id={id}>
       <div className="panel-header">
@@ -155,7 +161,11 @@ export function FieldActivityLog({
 
       <div className="activity-list">
         {sortedActivities.length === 0 && (
-          <p className="empty-state">No field activity records match these filters.</p>
+          <p className="empty-state">
+            {activities.length
+              ? "No field activity records match these filters."
+              : "No field records yet. Add scouting, application, planting, or harvest notes above."}
+          </p>
         )}
         {sortedActivities.map((activity) => (
           <article className="activity-row" key={activity.id}>
@@ -168,7 +178,7 @@ export function FieldActivityLog({
             <button
               className="danger-button"
               type="button"
-              onClick={() => onDeleteActivity(activity.id)}
+              onClick={() => handleDeleteActivity(activity)}
             >
               Delete
             </button>

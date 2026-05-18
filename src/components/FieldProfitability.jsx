@@ -10,12 +10,30 @@ const fieldSortOptions = [
   { label: "Margin / bu low to high", value: "marginAsc" },
   { label: "Acres high to low", value: "acresDesc" },
 ];
+const cropPresets = {
+  Corn: {
+    yieldPerAcre: 195,
+    pricePerBushel: 4.65,
+    status: "Planted",
+  },
+  Soybeans: {
+    yieldPerAcre: 58,
+    pricePerBushel: 11.8,
+    status: "Growing",
+  },
+  Wheat: {
+    yieldPerAcre: 78,
+    pricePerBushel: 6.1,
+    status: "Harvest Ready",
+  },
+};
 const blankField = {
   name: "",
   crop: "Corn",
+  customCrop: "",
   acres: 0,
-  yieldPerAcre: 0,
-  pricePerBushel: 0,
+  yieldPerAcre: cropPresets.Corn.yieldPerAcre,
+  pricePerBushel: cropPresets.Corn.pricePerBushel,
   status: "Planted",
 };
 
@@ -50,6 +68,17 @@ export function FieldProfitability({
     }));
   }
 
+  function applyCropPreset(crop) {
+    const preset = cropPresets[crop];
+
+    setNewField((currentField) => ({
+      ...currentField,
+      crop,
+      customCrop: "",
+      ...(preset || {}),
+    }));
+  }
+
   function handleAddField(event) {
     event.preventDefault();
 
@@ -60,9 +89,24 @@ export function FieldProfitability({
     onAddField({
       ...newField,
       name: newField.name.trim(),
-      crop: newField.crop.trim() || "Crop",
+      crop:
+        newField.crop === "Other"
+          ? newField.customCrop.trim() || "Crop"
+          : newField.crop,
     });
     setNewField(blankField);
+  }
+
+  function handleResetFields() {
+    if (window.confirm("Reset fields to the starter data?")) {
+      onResetFields();
+    }
+  }
+
+  function handleDeleteField(field) {
+    if (window.confirm(`Delete ${field.name}? This cannot be undone.`)) {
+      onDeleteField(field.id);
+    }
   }
 
   return (
@@ -87,7 +131,7 @@ export function FieldProfitability({
             </select>
           </label>
           <span className="badge">Saved in browser</span>
-          <button className="ghost-button" type="button" onClick={onResetFields}>
+          <button className="ghost-button" type="button" onClick={handleResetFields}>
             Reset fields
           </button>
         </div>
@@ -104,11 +148,28 @@ export function FieldProfitability({
         </label>
         <label>
           Crop
-          <input
+          <select
             value={newField.crop}
-            onChange={(event) => updateNewField("crop", event.target.value)}
-          />
+            onChange={(event) => applyCropPreset(event.target.value)}
+          >
+            {Object.keys(cropPresets).map((crop) => (
+              <option key={crop}>{crop}</option>
+            ))}
+            <option>Other</option>
+          </select>
         </label>
+        {newField.crop === "Other" && (
+          <label>
+            Custom crop
+            <input
+              value={newField.customCrop}
+              placeholder="Oats"
+              onChange={(event) =>
+                updateNewField("customCrop", event.target.value)
+              }
+            />
+          </label>
+        )}
         <label>
           Acres
           <input
@@ -158,6 +219,9 @@ export function FieldProfitability({
       </form>
 
       <div className="field-grid">
+        {sortedFields.length === 0 && (
+          <p className="empty-state">No fields yet. Add a field above to start tracking crop profitability.</p>
+        )}
         {sortedFields.map((field) => {
           const fieldNet = getFieldNet(field, inputCosts);
           const fieldNetPerAcre = getFieldNetPerAcre(field, inputCosts);
@@ -297,7 +361,7 @@ export function FieldProfitability({
               <button
                 className="danger-button"
                 type="button"
-                onClick={() => onDeleteField(field.id)}
+                onClick={() => handleDeleteField(field)}
               >
                 Delete field
               </button>
