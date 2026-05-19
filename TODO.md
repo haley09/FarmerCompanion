@@ -10,6 +10,8 @@
 ## Backend and Accounts
 
 - Add a real backend API for auth, farm data sync, team membership, and account settings.
+- Set `VITE_API_BASE_URL` when connecting login/register to a backend; without it, the app uses portfolio demo mode.
+- Replace demo tokens with real server-issued access and refresh tokens.
 - Add password reset, email verification, and session expiration handling.
 - Decide how farms/organizations are modeled so one owner can manage multiple farms later.
 - Add audit history for sensitive actions such as deleting records, importing backups, or changing employee permissions.

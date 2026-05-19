@@ -38,14 +38,19 @@ export default function RegisterPage() {
     setIsSubmitting(true);
 
     try {
-      await api.post("/auth/register/", formData);
+      if (api.isConfigured) {
+        await api.post("/auth/register/", formData);
+      }
 
       setFormData(initialFormData);
       setMessage(
-        "Account created. You can now log in and start setting up your farm dashboard."
+        api.isConfigured
+          ? "Account created. You can now log in and start setting up your farm dashboard."
+          : "Demo account ready. Continue to login to open the dashboard."
       );
       setMessageTone("success");
       localStorage.setItem("userRole", formData.role);
+      localStorage.setItem("authMode", api.isConfigured ? "api" : "demo");
       window.setTimeout(() => navigate("/login"), 900);
     } catch (error) {
       setMessage("Registration failed. Please check your details and try again.");
@@ -66,6 +71,11 @@ export default function RegisterPage() {
             Save field records, track equipment, watch markets, and keep your
             season planning in one practical dashboard.
           </p>
+          {!api.isConfigured && (
+            <p className="auth-note">
+              Demo mode is active because no backend API URL is configured.
+            </p>
+          )}
 
           <div className="auth-benefits" aria-label="Account benefits">
             <span>Field and crop planning</span>

@@ -1472,6 +1472,16 @@ h3 {
   font-weight: 800;
 }
 
+.auth-note {
+  background: rgba(250, 204, 21, 0.16);
+  border: 1px solid rgba(250, 204, 21, 0.36);
+  border-radius: 10px;
+  color: #fef3c7;
+  font-weight: 700;
+  margin-top: 1rem;
+  padding: 0.75rem;
+}
+
 .auth-form {
   gap: 16px;
 }
