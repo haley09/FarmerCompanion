@@ -164,6 +164,12 @@ h3 {
   font-size: 0.9rem;
 }
 
+.season-pill small {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.78rem;
+  line-height: 1.35;
+}
+
 .summary-grid,
 .content-grid,
 .utility-grid {

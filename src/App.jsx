@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   commodityPrices,
   cropBasis as initialCropBasis,
@@ -77,6 +77,7 @@ import {
   saveInputCosts,
   saveTeamAccess,
 } from "./utils/storage.js";
+import api from "./services/api";
 
 const defaultEmployeePermissions = {
   summary: true,
@@ -138,6 +139,9 @@ export default function App({ viewerRole = "owner" }) {
   const [teamAccess, setTeamAccess] = useState(() =>
     loadSavedTeamAccess(initialTeamAccess)
   );
+  const hasLoadedCloudData = useRef(false);
+  const saveTimer = useRef(null);
+  const [syncStatus, setSyncStatus] = useState("");
   const employeePermissions =
     teamAccess.employees[0]?.permissions || defaultEmployeePermissions;
   const canViewSection = (section) =>
@@ -210,6 +214,101 @@ export default function App({ viewerRole = "owner" }) {
   useEffect(() => {
     saveTeamAccess(teamAccess);
   }, [teamAccess]);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access");
+
+    if (!accessToken) {
+      hasLoadedCloudData.current = true;
+      return;
+    }
+
+    api
+      .get("/farm/workspace/")
+      .then((response) => {
+        if (!response?.data) {
+          return;
+        }
+
+        const farmData = response.data;
+        setFields(farmData.fields || initialFields);
+        setInputCosts(farmData.inputCosts || initialInputCosts);
+        setEquipment(farmData.equipment || initialEquipment);
+        setFarmLocation(farmData.farmLocation || initialFarmLocation);
+        setFarmProfile(farmData.farmProfile || initialFarmProfile);
+        setCommodityApiKey(farmData.commodityApiKey || "");
+        setCropBasis(farmData.cropBasis || initialCropBasis);
+        setCropTargets(farmData.cropTargets || initialCropTargets);
+        setFarmTasks(farmData.farmTasks || initialFarmTasks);
+        setFieldActivities(farmData.fieldActivities || initialFieldActivities);
+        setEquipmentServiceLogs(
+          farmData.equipmentServiceLogs || initialEquipmentServiceLogs
+        );
+        setCollapsedSections(farmData.collapsedSections || {});
+        setTeamAccess(farmData.teamAccess || initialTeamAccess);
+        setSyncStatus("Cloud workspace loaded.");
+      })
+      .catch((error) => {
+        console.error(error.response?.data || error.message);
+        setSyncStatus("Could not load cloud workspace. Local data is still available.");
+      })
+      .finally(() => {
+        hasLoadedCloudData.current = true;
+      });
+  }, []);
+
+  useEffect(() => {
+    const accessToken = localStorage.getItem("access");
+
+    if (!hasLoadedCloudData.current || !accessToken) {
+      return;
+    }
+
+    window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
+      api
+        .put("/farm/workspace/", { data: getFarmData() })
+        .then(() => setSyncStatus("Cloud workspace saved."))
+        .catch((error) => {
+          console.error(error.response?.data || error.message);
+          setSyncStatus("Cloud save failed. Changes are still saved in this browser.");
+        });
+    }, 700);
+
+    return () => window.clearTimeout(saveTimer.current);
+  }, [
+    fields,
+    inputCosts,
+    equipment,
+    farmLocation,
+    farmProfile,
+    commodityApiKey,
+    cropBasis,
+    cropTargets,
+    farmTasks,
+    fieldActivities,
+    equipmentServiceLogs,
+    collapsedSections,
+    teamAccess,
+  ]);
+
+  function getFarmData() {
+    return {
+      fields,
+      inputCosts,
+      equipment,
+      farmLocation,
+      farmProfile,
+      commodityApiKey,
+      cropBasis,
+      cropTargets,
+      farmTasks,
+      fieldActivities,
+      equipmentServiceLogs,
+      collapsedSections,
+      teamAccess,
+    };
+  }
 
   function updateField(fieldId, key, value) {
     setFields((currentFields) =>
@@ -462,6 +561,7 @@ export default function App({ viewerRole = "owner" }) {
           <div className="season-pill">
             <span>{isOwner ? farmProfile.operatorName || "Owner dashboard" : "Employee dashboard"}</span>
             <strong>{farmProfile.planningYear} planning season</strong>
+            {syncStatus && <small>{syncStatus}</small>}
           </div>
         </header>
 

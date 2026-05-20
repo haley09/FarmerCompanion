@@ -1,11 +1,6 @@
 const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || "";
-const hasApiBaseUrl = Boolean(API_BASE_URL);
 
 async function request(path, options = {}) {
-  if (!hasApiBaseUrl) {
-    throw new Error("Backend API is not configured.");
-  }
-
   const accessToken = localStorage.getItem("access");
   const response = await fetch(`${API_BASE_URL}${path}`, {
     ...options,
@@ -31,11 +26,22 @@ async function request(path, options = {}) {
 }
 
 const api = {
-  isConfigured: hasApiBaseUrl,
+  isConfigured: true,
+
+  get(path) {
+    return request(path);
+  },
 
   post(path, body) {
     return request(path, {
       method: "POST",
+      body: JSON.stringify(body),
+    });
+  },
+
+  put(path, body) {
+    return request(path, {
+      method: "PUT",
       body: JSON.stringify(body),
     });
   },

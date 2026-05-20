@@ -29,13 +29,7 @@ export default function LoginPage() {
     setIsSubmitting(true);
 
     try {
-      const response = api.isConfigured
-        ? await api.post("/auth/login/", formData)
-        : {
-            role: formData.role,
-            access: `demo-access-${Date.now()}`,
-            refresh: "demo-refresh",
-          };
+      const response = await api.post("/auth/login/", formData);
       const role = response?.role || formData.role;
 
       if (response?.access) {
@@ -48,14 +42,10 @@ export default function LoginPage() {
 
       localStorage.setItem("userEmail", formData.email);
       localStorage.setItem("userRole", role);
-      localStorage.setItem("authMode", api.isConfigured ? "api" : "demo");
+      localStorage.setItem("authMode", "api");
       navigate(role === "employee" ? "/employee-dashboard" : "/dashboard");
     } catch (error) {
-      setMessage(
-        api.isConfigured
-          ? "Login failed. Please check your email and password."
-          : "Demo login failed. Please try again."
-      );
+      setMessage("Login failed. Please check your email and password.");
       setMessageTone("error");
       console.error(error.response?.data || error.message);
     } finally {
@@ -73,14 +63,8 @@ export default function LoginPage() {
             Pick up where you left off with field planning, input costs,
             equipment reminders, weather, and market snapshots.
           </p>
-          {!api.isConfigured && (
-            <p className="auth-note">
-              Demo mode is active because no backend API URL is configured.
-            </p>
-          )}
-
           <div className="auth-benefits" aria-label="Dashboard highlights">
-            <span>Saved browser workspace</span>
+            <span>Cloud-saved workspace</span>
             <span>Planning reports</span>
             <span>Daily operating view</span>
           </div>
